@@ -14,6 +14,8 @@
 #  [*stomp_package*] - package name to install stomp
 #  [*config*] - contents of config file
 #  [*env_config*] - contents of env-config file
+#  [*cluster_nodes*] - list of cluster nodes
+#  [*cookie*] - contents of cookie file for clustering
 # Requires:
 #  stdlib
 # Sample Usage:
@@ -23,17 +25,19 @@
 #
 # [Remember: No empty lines between comments and class definition]
 class rabbitmq::server(
-  $port = '5672',
+  $port              = '5672',
   $delete_guest_user = false,
-  $package_name = 'rabbitmq-server',
-  $version = 'UNSET',
-  $service_name = 'rabbitmq-server',
-  $service_ensure = 'running',
-  $install_stomp = false,
-  $stomp_port = '6163',
-  $stomp_package = 'rabbitmq-plugin-stomp',
-  $config='UNSET',
-  $env_config='UNSET'
+  $package_name      = 'rabbitmq-server',
+  $version           = 'UNSET',
+  $service_name      = 'rabbitmq-server',
+  $service_ensure    = 'running',
+  $install_stomp     = false,
+  $stomp_port        = '6163',
+  $stomp_package     = 'rabbitmq-plugin-stomp',
+  $config            = 'UNSET',
+  $env_config        = 'UNSET',
+  $cluster_nodes     = [],
+  $cookie            = 'UNSET'
 ) {
 
   validate_bool($delete_guest_user, $install_stomp)
@@ -56,6 +60,18 @@ class rabbitmq::server(
     $env_config_real = template("${module_name}/rabbitmq-env.conf.erb")
   } else {
     $env_config_real = $env_config
+  }
+
+  if $cookie != 'UNSET' {
+    file {
+      '/var/lib/rabbitmq/.erlang.cookie':
+        owner   => 'rabbitmq',
+        group   => 'rabbitmq',
+        mode    => '0400',
+        content => $cookie,
+        notify  => Class['rabbitmq::service'],
+        require => Package[$package_name],
+    }
   }
 
   $plugin_dir = "/usr/lib/rabbitmq/lib/rabbitmq_server-${version_real}/plugins"

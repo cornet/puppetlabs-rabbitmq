@@ -1,3 +1,8 @@
+* 2012-02-16 Nathan <cornet@sheepy.org>
+- Removed apt dependency
+- Added clustering support
+- Created type/provider for plugins
+
 * 2011-06-14 Dan Bode <dan@Puppetlabs.com> 2.0.0
 - Massive refactor:
 - added native types for user/vhost/user_permissions

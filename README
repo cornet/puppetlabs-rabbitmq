@@ -1,29 +1,23 @@
 # RabbitMQ Puppet Module
 
+Original module by:
+
 Jeff McCune <jeff@puppetlabs.com>
 Dan Bode <dan@puppetlabs.com>
 
+Updated to support 2.7.x:
+
+Nathan <cornet@sheepy.org>
+
+
 This module manages the RabbitMQ Middleware service.
 
-This module will be updated and released to the forge shortly:
-(http://forge.puppetlabs.com/)
-
-RabbitMQ Packages are published in the Puppet Labs ProSvc repository at:
-[yum.puppetlabs.com](http://yum.puppetlabs.com/prosvc/)
-
-This module has been tested against 2.4.1 and is known to not support
+This module has been tested against 2.7.1 and is known to not support
 all features against earlier versions.
 
 classes:
 
 This module provides its core functionality through two main classes:
-
-rabbitmq::repo::apt - sets up an apt repo source for the vendor rabbitmq packages
-
-class { 'rabbitmq::repo::apt': 
-  pin    => 900,
-  before => Class['rabbitmq::server'] 
-}
 
 rabbitmq::server - class for installing rabbitmq-server:
 
@@ -32,7 +26,16 @@ class { 'rabbitmq::server':
   delete_guest_user => true,
 }
 
-This module also contains 3 native types:
+for clustering:
+class {
+  'rabbitmq::server':
+    delete_guest_user => true,
+    cluster_nodes     => ['rabbit@rabbit-1','rabbit@rabbit-2'],
+    cookie            => 'ABCDEFGHIJK123456789',
+}
+
+
+This module also contains 4 native types:
 (unfortunately, you must specify the provider explicitly for these types)
 
 rabbitmq_user
@@ -53,7 +56,7 @@ rabbitmq_vhost
 #>puppet resource rabbitmq_vhost
 
 rabbitmq_vhost { 'myhost':
-  ensure => present,
+  ensure   => present,
   provider => 'rabbitmqctl',
 }
 
@@ -63,5 +66,14 @@ rabbitmq_user_permissions { 'dan@myhost':
   configure_permission => '.*',
   read_permission      => '.*',
   write_permission     => '.*',
-  provider => 'rabbitmqctl',
+  provider             => 'rabbitmqctl',
 }
+
+rabbitmq_plugin:
+
+rabbitmq_plugin:
+  rabbitmq_plugin { 'rabbitmq_management':
+      provider => 'rabbitmqplugin',
+  }
+}
+

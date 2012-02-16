@@ -1,3 +1,7 @@
+2.7.x support TODO -
+  - Add spec tests for providers
+  - Updates tests for clustering support
+
 provider TODO -
   - password should be a property and not a param
      - what if we tried to log in as that user?
